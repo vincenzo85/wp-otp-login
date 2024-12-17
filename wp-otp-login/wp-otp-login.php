@@ -124,3 +124,39 @@ function wp_otp_login_settings_page_html() {
     submit_button('Salva Impostazioni');
     echo '</form></div>';
 }
+
+// Mostra una notifica di donazione nel backend
+add_action( 'admin_notices', 'wp_otp_login_donation_notice' );
+
+function wp_otp_login_donation_notice() {
+    // Controlla se l'utente corrente è amministratore
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    // Recupera la data dell'ultima notifica
+    $last_donation_notice = get_option( 'wp_otp_last_donation_notice', 0 );
+    $current_time = time();
+
+    // Mostra la notifica solo se è passato almeno un mese (30 giorni)
+    if ( $current_time - $last_donation_notice < MONTH_IN_SECONDS ) {
+        return;
+    }
+
+    // Link per la donazione (sostituisci con il tuo link PayPal)
+    $donation_link = 'https://buy.stripe.com/4gw7ut4RX1zh8hO288';
+
+    // Messaggio di notifica
+    echo '
+    <div class="notice notice-success is-dismissible">
+        <p><strong>Supporta WP OTP Login!</strong></p>
+        <p>Se questo plugin ti è utile, considera una piccola donazione per supportare lo sviluppo continuo. 🙏</p>
+        <p>
+            <a href="' . esc_url( $donation_link ) . '" class="button button-primary" target="_blank" rel="noopener noreferrer">Fai una Donazione</a>
+        </p>
+    </div>
+    ';
+
+    // Aggiorna la data dell'ultima notifica
+    update_option( 'wp_otp_last_donation_notice', $current_time );
+}
