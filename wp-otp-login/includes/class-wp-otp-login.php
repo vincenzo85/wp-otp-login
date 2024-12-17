@@ -119,9 +119,14 @@ class WP_OTP_Login {
         </body>
         </html>
         ';
+        // Ottieni il dominio dinamicamente
+        $site_url = site_url();
+        $parsed_url = parse_url( $site_url );
+        $domain = isset( $parsed_url['host'] ) ? $parsed_url['host'] : 'example.com';
+
     
         $headers = array(
-            'From: <no-reply@carsa.loc>',
+            "From: <no-reply@$domain>",   
             'Content-Type: text/html; charset=UTF-8'
         );
         wp_mail( $user->user_email, $subject, $message, $headers );
