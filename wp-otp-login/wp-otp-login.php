@@ -136,12 +136,23 @@ function wp_otp_login_donation_notice() {
 
     // Recupera la data dell'ultima notifica
     $last_donation_notice = get_option( 'wp_otp_last_donation_notice', 0 );
+    $activation_date = get_option( 'wp_otp_plugin_activation_date', 0 );
     $current_time = time();
 
-    // Mostra la notifica solo se è passato almeno un mese (30 giorni)
-    if ( $current_time - $last_donation_notice < MONTH_IN_SECONDS ) {
+    // Se non è impostata la data di attivazione, salva l'attuale timestamp
+    if ( ! $activation_date ) {
+        $activation_date = $current_time;
+        update_option( 'wp_otp_plugin_activation_date', $activation_date );
+    }
+
+    // Mostra la notifica solo se:
+    // 1. Sono passati almeno 2 giorni dalla prima attivazione
+    // 2. Non è stata mostrata negli ultimi 5 giorni 
+    $two_days_later = $activation_date + (2 * DAY_IN_SECONDS);
+    if ( $current_time < $two_days_later || ( $current_time - $last_donation_notice < 5 * DAY_IN_SECONDS ) ) {
         return;
     }
+
 
     // Link per la donazione (sostituisci con il tuo link PayPal)
     $donation_link = 'https://buy.stripe.com/4gw7ut4RX1zh8hO288';
